@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GANESH SIR TRACKING SIMULATION</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4bb543;
+            --warning: #ffcc00;
+            --danger: #dc3545;
+            --bg-light: #f5f7fa;
+            --bg-dark: #121212;
+            --text-light: #333;
+            --text-dark: #f0f0f0;
+            --card-light: #ffffff;
+            --card-dark: #1e1e1e;
+        }
+
+        body {
+            background: var(--bg-light);
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background 0.5s ease;
+        }
+
+        body.dark-theme {
+            background: var(--bg-dark);
+            color: var(--text-dark);
+        }
+
+        /* Moving clouds background */
+        .clouds {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 1000px;
+            opacity: 0.8;
+            animation: moveClouds 120s linear infinite;
+        }
+
+        .cloud:nth-child(1) {
+            width: 200px;
+            height: 60px;
+            top: 10%;
+            animation-duration: 100s;
+        }
+
+        .cloud:nth-child(2) {
+            width: 300px;
+            height: 100px;
+            top: 25%;
+            animation-duration: 150s;
+        }
+
+        .cloud:nth-child(3) {
+            width: 250px;
+            height: 80px;
+            top: 50%;
+            animation-duration: 120s;
+        }
+
+        .cloud:nth-child(4) {
+            width: 180px;
+            height: 50px;
+            top: 70%;
+            animation-duration: 110s;
+        }
+
+        .cloud:nth-child(5) {
+            width: 350px;
+            height: 120px;
+            top: 35%;
+            animation-duration: 180s;
+        }
+
+        @keyframes moveClouds {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(100vw); }
+        }
+
+        /* Floating particles animation */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            background: var(--accent);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: floatParticle 20s infinite linear;
+        }
+
+        @keyframes floatParticle {
+            0% {
+                transform: translateY(0) translateX(0);
+            }
+            25% {
+                transform: translateY(-20px) translateX(10px);
+            }
+            50% {
+                transform: translateY(0) translateX(20px);
+            }
+            75% {
+                transform: translateY(20px) translateX(10px);
+            }
+            100% {
+                transform: translateY(0) translateX(0);
+            }
+        }
+
+        /* Header styles */
+        header {
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            transition: all 0.5s ease;
+        }
+
+        body.dark-theme header {
+            background: rgba(30, 30, 30, 0.9);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            animation: bounce 2s infinite;
+        }
+
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-toggle {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background: var(--secondary);
+            transform: rotate(30deg);
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Main container */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Dashboard styles */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            gap: 2rem;
+        }
+
+        /* Sidebar styles */
+        .sidebar {
+            background: var(--card-light);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            height: fit-content;
+            transition: all 0.5s ease;
+        }
+
+        body.dark-theme .sidebar {
+            background: var(--card-dark);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .sidebar h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .group-list {
+            list-style: none;
+        }
+
+        .group-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .group-item:hover {
+            background: rgba(67, 97, 238, 0.1);
+            transform: translateX(5px);
+        }
+
+        .group-item.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .group-icon {
+            font-size: 1.2rem;
+        }
+
+        .add-group-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 15px;
+            border-radius: 10px;
+            width: 100%;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .add-group-btn:hover {
+            background: var(--secondary);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Main content styles */
+        .main-content {
+            background: var(--card-light);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            min-height: 600px;
+            transition: all 0.5s ease;
+        }
+
+        body.dark-theme .main-content {
+            background: var(--card-dark);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        body.dark-theme .content-header {
+            border-bottom: 1px solid #444;
+        }
+
+        .content-header h2 {
+            color: var(--primary);
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-bar input {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            width: 250px;
+            transition: all 0.3s ease;
+            background: var(--card-light);
+            color: var(--text-light);
+        }
+
+        body.dark-theme .search-bar input {
+            background: #2d2d2d;
+            border-color: #444;
+            color: var(--text-dark);
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+        }
+
+        .search-bar button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-bar button:hover {
+            background: var(--secondary);
+        }
+
+        /* Calendar styles */
+        .calendar-container {
+            margin-bottom: 2rem;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .calendar-day {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-theme .calendar-day {
+            background: #2d2d2d;
+        }
+
+        .calendar-day:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        .calendar-day.header {
+            background: var(--primary);
+            color: white;
+            font-weight: bold;
+        }
+
+        .calendar-day.today {
+            background: var(--accent);
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Students section */
+        .students-section {
+            margin-top: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .add-student-btn {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .add-student-btn:hover {
+            background: #3a9e3a;
+            transform: translateY(-2px);
+        }
+
+        .students-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .student-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        body.dark-theme .student-card {
+            background: #2d2d2d;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .student-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .student-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 1rem;
+            display: block;
+            border: 3px solid var(--primary);
+        }
+
+        .student-name {
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+
+        body.dark-theme .student-name {
+            color: var(--text-dark);
+        }
+
+        .student-fee {
+            text-align: center;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .fee-status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .fee-paid {
+            background: rgba(75, 181, 67, 0.2);
+            color: var(--success);
+        }
+
+        .fee-pending {
+            background: rgba(255, 204, 0, 0.2);
+            color: #b38f00;
+        }
+
+        .fee-denied {
+            background: rgba(220, 53, 69, 0.2);
+            color: var(--danger);
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+        }
+
+        .action-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .mark-paid {
+            background: var(--success);
+            color: white;
+        }
+
+        .mark-pending {
+            background: var(--warning);
+            color: black;
+        }
+
+        .mark-denied {
+            background: var(--danger);
+            color: white;
+        }
+
+        .action-btn:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--card-light);
+            border-radius: 15px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: modalAppear 0.3s ease;
+        }
+
+        body.dark-theme .modal-content {
+            background: var(--card-dark);
+        }
+
+        @keyframes modalAppear {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        body.dark-theme .modal-header {
+            border-bottom: 1px solid #444;
+        }
+
+        .modal-header h3 {
+            color: var(--primary);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #777;
+            transition: all 0.3s ease;
+        }
+
+        .close-modal:hover {
+            color: var(--danger);
+            transform: rotate(90deg);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        body.dark-theme .form-group label {
+            color: var(--text-dark);
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            background: var(--card-light);
+            color: var(--text-light);
+        }
+
+        body.dark-theme .form-group input, 
+        body.dark-theme .form-group select {
+            background: #2d2d2d;
+            border-color: #444;
+            color: var(--text-dark);
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+        }
+
+        .photo-upload {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .photo-preview {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 2px dashed #ccc;
+        }
+
+        body.dark-theme .photo-preview {
+            background: #2d2d2d;
+            border-color: #555;
+        }
+
+        .photo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .upload-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            background: var(--secondary);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 992px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                order: 2;
+            }
+            
+            .main-content {
+                order: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .search-bar input {
+                width: 180px;
+            }
+            
+            .students-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+
+        @media (max-width: 576px) {
+            .logo-text {
+                font-size: 1.4rem;
+            }
+            
+            .content-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .search-bar {
+                width: 100%;
+            }
+            
+            .search-bar input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Moving clouds background -->
+    <div class="clouds">
+        <div class="cloud"></div>
+        <div class="cloud"></div>
+        <div class="cloud"></div>
+        <div class="cloud"></div>
+        <div class="cloud"></div>
+    </div>
+
+    <!-- Floating particles -->
+    <div class="particles" id="particlesContainer"></div>
+
+    <!-- Header -->
+    <header>
+        <div class="logo-container">
+            <div class="logo">
+                <i class="fas fa-chalkboard-teacher logo-icon"></i>
+                <h1 class="logo-text">GANESH SIR TRACKING SIMULATION</h1>
+            </div>
+            <button class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main container -->
+    <div class="container">
+        <div class="dashboard">
+            <!-- Sidebar with groups -->
+            <div class="sidebar">
+                <h2>Your Groups</h2>
+                <ul class="group-list" id="groupList">
+                    <!-- Groups will be dynamically added here -->
+                </ul>
+                <button class="add-group-btn" id="addGroupBtn">
+                    <i class="fas fa-plus"></i> Create New Group
+                </button>
+            </div>
+
+            <!-- Main content area -->
+            <div class="main-content">
+                <div class="content-header">
+                    <h2 id="currentGroupName">Select a Group</h2>
+                    <div class="search-bar">
+                        <input type="text" id="searchInput" placeholder="Search students...">
+                        <button id="searchBtn"><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+
+                <!-- Calendar section -->
+                <div class="calendar-container" id="calendarSection" style="display: none;">
+                    <div class="calendar-header">
+                        <h3>Monthly Calendar</h3>
+                        <div>
+                            <button id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+                            <span id="currentMonth">June 2023</span>
+                            <button id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="calendar" id="calendar">
+                        <!-- Calendar will be dynamically generated -->
+                    </div>
+                </div>
+
+                <!-- Students section -->
+                <div class="students-section" id="studentsSection" style="display: none;">
+                    <div class="section-header">
+                        <h3>Students</h3>
+                        <button class="add-student-btn" id="addStudentBtn">
+                            <i class="fas fa-user-plus"></i> Add Student
+                        </button>
+                    </div>
+                    <div class="students-grid" id="studentsGrid">
+                        <!-- Students will be dynamically added here -->
+                    </div>
+                </div>
+
+                <!-- Default message when no group is selected -->
+                <div id="defaultMessage" style="text-align: center; padding: 3rem; color: #6c757d;">
+                    <i class="fas fa-users" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                    <h3>No Group Selected</h3>
+                    <p>Select a group from the sidebar or create a new one to get started.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Add Group Modal -->
+    <div class="modal" id="addGroupModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Group</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="groupName">Group Name</label>
+                <input type="text" id="groupName" placeholder="e.g., Class VIII">
+            </div>
+            <div class="form-group">
+                <label for="groupPhoto">Group Photo (Optional)</label>
+                <div class="photo-upload">
+                    <div class="photo-preview" id="groupPhotoPreview">
+                        <i class="fas fa-image" style="font-size: 2rem; color: #ccc;"></i>
+                    </div>
+                    <input type="file" id="groupPhoto" accept="image/*" style="display: none;">
+                    <button class="upload-btn" id="groupPhotoUploadBtn">Upload Photo</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary close-modal">Cancel</button>
+                <button class="btn btn-primary" id="saveGroupBtn">Create Group</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Student Modal -->
+    <div class="modal" id="addStudentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Student</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="studentName">Student Name</label>
+                <input type="text" id="studentName" placeholder="Enter student name">
+            </div>
+            <div class="form-group">
+                <label for="studentFee">Monthly Fee (₹)</label>
+                <input type="number" id="studentFee" placeholder="Enter monthly fee">
+            </div>
+            <div class="form-group">
+                <label for="studentPhoto">Student Photo (Optional)</label>
+                <div class="photo-upload">
+                    <div class="photo-preview" id="studentPhotoPreview">
+                        <i class="fas fa-user" style="font-size: 2rem; color: #ccc;"></i>
+                    </div>
+                    <input type="file" id="studentPhoto" accept="image/*" style="display: none;">
+                    <button class="upload-btn" id="studentPhotoUploadBtn">Upload Photo</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary close-modal">Cancel</button>
+                <button class="btn btn-primary" id="saveStudentBtn">Add Student</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data storage
+        let groups = JSON.parse(localStorage.getItem('teacherGroups')) || [];
+        let currentGroupId = null;
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+
+        // DOM Elements
+        const groupList = document.getElementById('groupList');
+        const addGroupBtn = document.getElementById('addGroupBtn');
+        const addGroupModal = document.getElementById('addGroupModal');
+        const saveGroupBtn = document.getElementById('saveGroupBtn');
+        const groupNameInput = document.getElementById('groupName');
+        const groupPhotoInput = document.getElementById('groupPhoto');
+        const groupPhotoUploadBtn = document.getElementById('groupPhotoUploadBtn');
+        const groupPhotoPreview = document.getElementById('groupPhotoPreview');
+        
+        const currentGroupName = document.getElementById('currentGroupName');
+        const calendarSection = document.getElementById('calendarSection');
+        const studentsSection = document.getElementById('studentsSection');
+        const defaultMessage = document.getElementById('defaultMessage');
+        
+        const addStudentBtn = document.getElementById('addStudentBtn');
+        const addStudentModal = document.getElementById('addStudentModal');
+        const saveStudentBtn = document.getElementById('saveStudentBtn');
+        const studentNameInput = document.getElementById('studentName');
+        const studentFeeInput = document.getElementById('studentFee');
+        const studentPhotoInput = document.getElementById('studentPhoto');
+        const studentPhotoUploadBtn = document.getElementById('studentPhotoUploadBtn');
+        const studentPhotoPreview = document.getElementById('studentPhotoPreview');
+        
+        const studentsGrid = document.getElementById('studentsGrid');
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        
+        const calendar = document.getElementById('calendar');
+        const currentMonthElement = document.getElementById('currentMonth');
+        const prevMonthBtn = document.getElementById('prevMonth');
+        const nextMonthBtn = document.getElementById('nextMonth');
+        
+        const themeToggle = document.getElementById('themeToggle');
+        const particlesContainer = document.getElementById('particlesContainer');
+
+        // Close modal buttons
+        const closeModalButtons = document.querySelectorAll('.close-modal');
+
+        // Initialize the app
+        function init() {
+            renderGroups();
+            setupEventListeners();
+            renderCalendar();
+            createParticles();
+            checkTheme();
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            addGroupBtn.addEventListener('click', () => {
+                addGroupModal.style.display = 'flex';
+                groupNameInput.value = '';
+                groupPhotoPreview.innerHTML = '<i class="fas fa-image" style="font-size: 2rem; color: #ccc;"></i>';
+            });
+
+            groupPhotoUploadBtn.addEventListener('click', () => {
+                groupPhotoInput.click();
+            });
+
+            groupPhotoInput.addEventListener('change', function(e) {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        groupPhotoPreview.innerHTML = `<img src="${e.target.result}" alt="Group Photo">`;
+                    }
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+
+            saveGroupBtn.addEventListener('click', saveGroup);
+
+            addStudentBtn.addEventListener('click', () => {
+                addStudentModal.style.display = 'flex';
+                studentNameInput.value = '';
+                studentFeeInput.value = '';
+                studentPhotoPreview.innerHTML = '<i class="fas fa-user" style="font-size: 2rem; color: #ccc;"></i>';
+            });
+
+            studentPhotoUploadBtn.addEventListener('click', () => {
+                studentPhotoInput.click();
+            });
+
+            studentPhotoInput.addEventListener('change', function(e) {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        studentPhotoPreview.innerHTML = `<img src="${e.target.result}" alt="Student Photo">`;
+                    }
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+
+            saveStudentBtn.addEventListener('click', saveStudent);
+
+            searchBtn.addEventListener('click', searchStudents);
+            searchInput.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    searchStudents();
+                }
+            });
+
+            prevMonthBtn.addEventListener('click', () => {
+                currentMonth--;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+                renderCalendar();
+            });
+
+            nextMonthBtn.addEventListener('click', () => {
+                currentMonth++;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                }
+                renderCalendar();
+            });
+
+            themeToggle.addEventListener('click', toggleTheme);
+
+            // Close modals when clicking close button or outside
+            closeModalButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    addGroupModal.style.display = 'none';
+                    addStudentModal.style.display = 'none';
+                });
+            });
+
+            window.addEventListener('click', (e) => {
+                if (e.target === addGroupModal) {
+                    addGroupModal.style.display = 'none';
+                }
+                if (e.target === addStudentModal) {
+                    addStudentModal.style.display = 'none';
+                }
+            });
+        }
+
+        // Render groups in sidebar
+        function renderGroups() {
+            groupList.innerHTML = '';
+            
+            if (groups.length === 0) {
+                groupList.innerHTML = '<p style="text-align: center; color: #6c757d; padding: 1rem;">No groups yet</p>';
+                return;
+            }
+            
+            groups.forEach(group => {
+                const groupItem = document.createElement('li');
+                groupItem.className = 'group-item';
+                if (group.id === currentGroupId) {
+                    groupItem.classList.add('active');
+                }
+                
+                groupItem.innerHTML = `
+                    <i class="fas fa-users group-icon"></i>
+                    <span>${group.name}</span>
+                `;
+                
+                groupItem.addEventListener('click', () => {
+                    selectGroup(group.id);
+                });
+                
+                groupList.appendChild(groupItem);
+            });
+        }
+
+        // Save new group
+        function saveGroup() {
+            const name = groupNameInput.value.trim();
+            
+            if (!name) {
+                alert('Please enter a group name');
+                return;
+            }
+            
+            const newGroup = {
+                id: Date.now().toString(),
+                name: name,
+                students: [],
+                photo: groupPhotoPreview.querySelector('img') ? groupPhotoPreview.querySelector('img').src : null
+            };
+            
+            groups.push(newGroup);
+            localStorage.setItem('teacherGroups', JSON.stringify(groups));
+            
+            addGroupModal.style.display = 'none';
+            renderGroups();
+            selectGroup(newGroup.id);
+        }
+
+        // Select a group
+        function selectGroup(groupId) {
+            currentGroupId = groupId;
+            const group = groups.find(g => g.id === groupId);
+            
+            if (!group) return;
+            
+            currentGroupName.textContent = group.name;
+            calendarSection.style.display = 'block';
+            studentsSection.style.display = 'block';
+            defaultMessage.style.display = 'none';
+            
+            renderGroups();
+            renderStudents();
+        }
+
+        // Save new student
+        function saveStudent() {
+            const name = studentNameInput.value.trim();
+            const fee = parseInt(studentFeeInput.value);
+            
+            if (!name) {
+                alert('Please enter a student name');
+                return;
+            }
+            
+            if (!fee || fee <= 0) {
+                alert('Please enter a valid fee amount');
+                return;
+            }
+            
+            const groupIndex = groups.findIndex(g => g.id === currentGroupId);
+            if (groupIndex === -1) return;
+            
+            const newStudent = {
+                id: Date.now().toString(),
+                name: name,
+                fee: fee,
+                feeStatus: 'pending', // pending, paid, denied
+                photo: studentPhotoPreview.querySelector('img') ? studentPhotoPreview.querySelector('img').src : null
+            };
+            
+            groups[groupIndex].students.push(newStudent);
+            localStorage.setItem('teacherGroups', JSON.stringify(groups));
+            
+            addStudentModal.style.display = 'none';
+            renderStudents();
+        }
+
+        // Render students in the current group
+        function renderStudents() {
+            studentsGrid.innerHTML = '';
+            
+            const group = groups.find(g => g.id === currentGroupId);
+            if (!group || group.students.length === 0) {
+                studentsGrid.innerHTML = '<p style="text-align: center; color: #6c757d; padding: 2rem; width: 100%;">No students in this group yet</p>';
+                return;
+            }
+            
+            group.students.forEach(student => {
+                const studentCard = document.createElement('div');
+                studentCard.className = 'student-card';
+                
+                let statusClass = 'fee-pending';
+                let statusText = 'Pending';
+                
+                if (student.feeStatus === 'paid') {
+                    statusClass = 'fee-paid';
+                    statusText = 'Paid';
+                } else if (student.feeStatus === 'denied') {
+                    statusClass = 'fee-denied';
+                    statusText = 'Denied';
+                }
+                
+                studentCard.innerHTML = `
+                    ${student.photo ? 
+                        `<img src="${student.photo}" class="student-photo" alt="${student.name}">` : 
+                        `<div class="student-photo" style="background: #4361ee; color: white; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-user" style="font-size: 2rem;"></i>
+                        </div>`
+                    }
+                    <div class="student-name">${student.name}</div>
+                    <div class="student-fee">Fee: ₹${student.fee} <span class="fee-status ${statusClass}">${statusText}</span></div>
+                    <div class="action-buttons">
+                        <button class="action-btn mark-paid" data-id="${student.id}">Paid</button>
+                        <button class="action-btn mark-pending" data-id="${student.id}">Pending</button>
+                        <button class="action-btn mark-denied" data-id="${student.id}">Denied</button>
+                    </div>
+                `;
+                
+                studentsGrid.appendChild(studentCard);
+            });
+            
+            // Add event listeners to action buttons
+            document.querySelectorAll('.mark-paid').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    updateFeeStatus(e.target.getAttribute('data-id'), 'paid');
+                });
+            });
+            
+            document.querySelectorAll('.mark-pending').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    updateFeeStatus(e.target.getAttribute('data-id'), 'pending');
+                });
+            });
+            
+            document.querySelectorAll('.mark-denied').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    updateFeeStatus(e.target.getAttribute('data-id'), 'denied');
+                });
+            });
+        }
+
+        // Update student fee status
+        function updateFeeStatus(studentId, status) {
+            const groupIndex = groups.findIndex(g => g.id === currentGroupId);
+            if (groupIndex === -1) return;
+            
+            const studentIndex = groups[groupIndex].students.findIndex(s => s.id === studentId);
+            if (studentIndex === -1) return;
+            
+            groups[groupIndex].students[studentIndex].feeStatus = status;
+            localStorage.setItem('teacherGroups', JSON.stringify(groups));
+            
+            renderStudents();
+        }
+
+        // Search students
+        function searchStudents() {
+            const query = searchInput.value.toLowerCase().trim();
+            const group = groups.find(g => g.id === currentGroupId);
+            
+            if (!group) return;
+            
+            const filteredStudents = group.students.filter(student => 
+                student.name.toLowerCase().includes(query)
+            );
+            
+            studentsGrid.innerHTML = '';
+            
+            if (filteredStudents.length === 0) {
+                studentsGrid.innerHTML = '<p style="text-align: center; color: #6c757d; padding: 2rem; width: 100%;">No students found</p>';
+                return;
+            }
+            
+            filteredStudents.forEach(student => {
+                const studentCard = document.createElement('div');
+                studentCard.className = 'student-card';
+                
+                let statusClass = 'fee-pending';
+                let statusText = 'Pending';
+                
+                if (student.feeStatus === 'paid') {
+                    statusClass = 'fee-paid';
+                    statusText = 'Paid';
+                } else if (student.feeStatus === 'denied') {
+                    statusClass = 'fee-denied';
+                    statusText = 'Denied';
+                }
+                
+                studentCard.innerHTML = `
+                    ${student.photo ? 
+                        `<img src="${student.photo}" class="student-photo" alt="${student.name}">` : 
+                        `<div class="student-photo" style="background: #4361ee; color: white; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-user" style="font-size: 2rem;"></i>
+                        </div>`
+                    }
+                    <div class="student-name">${student.name}</div>
+                    <div class="student-fee">Fee: ₹${student.fee} <span class="fee-status ${statusClass}">${statusText}</span></div>
+                    <div class="action-buttons">
+                        <button class="action-btn mark-paid" data-id="${student.id}">Paid</button>
+                        <button class="action-btn mark-pending" data-id="${student.id}">Pending</button>
+                        <button class="action-btn mark-denied" data-id="${student.id}">Denied</button>
+                    </div>
+                `;
+                
+                studentsGrid.appendChild(studentCard);
+            });
+            
+            // Add event listeners to action buttons
+            document.querySelectorAll('.mark-paid').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    updateFeeStatus(e.target.getAttribute('data-id'), 'paid');
+                });
+            });
+            
+            document.querySelectorAll('.mark-pending').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    updateFeeStatus(e.target.getAttribute('data-id'), 'pending');
+                });
+            });
+            
+            document.querySelectorAll('.mark-denied').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    updateFeeStatus(e.target.getAttribute('data-id'), 'denied');
+                });
+            });
+        }
+
+        // Render calendar
+        function renderCalendar() {
+            const monthNames = ["January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+            ];
+            
+            currentMonthElement.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+            
+            // Get first day of month and number of days
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            
+            // Clear calendar
+            calendar.innerHTML = '';
+            
+            // Add day headers
+            const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+            dayNames.forEach(day => {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day header';
+                dayElement.textContent = day;
+                calendar.appendChild(dayElement);
+            });
+            
+            // Add empty cells for days before the first day of the month
+            for (let i = 0; i < firstDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'calendar-day';
+                calendar.appendChild(emptyDay);
+            }
+            
+            // Add days of the month
+            const today = new Date();
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                dayElement.textContent = day;
+                
+                // Highlight today
+                if (day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear()) {
+                    dayElement.classList.add('today');
+                }
+                
+                calendar.appendChild(dayElement);
+            }
+        }
+
+        // Create floating particles
+        function createParticles() {
+            const particleCount = 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // Random size
+                const size = Math.random() * 10 + 5;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // Random position
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                
+                // Random animation delay and duration
+                particle.style.animationDelay = `${Math.random() * 20}s`;
+                particle.style.animationDuration = `${Math.random() * 10 + 15}s`;
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Toggle dark/light theme
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+            
+            if (document.body.classList.contains('dark-theme')) {
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Check and apply saved theme
+        function checkTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+        }
+
+        // Initialize the app
+        init();
+    </script>
+</body>
+</html>
