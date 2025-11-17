@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GANESH SIR TRACKING SIMULATION</title>
-    <link rel="icon" type="image/png" href="g.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -168,9 +167,9 @@
             gap: 15px;
         }
 
-        .logo-icon {
-            font-size: 2.5rem;
-            color: var(--primary);
+        .logo-img {
+            height: 50px;
+            width: auto;
             animation: bounce 2s infinite;
         }
 
@@ -523,6 +522,22 @@
             color: var(--danger);
         }
 
+        .pa-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--accent);
+            color: white;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
         .action-buttons {
             display: flex;
             justify-content: space-between;
@@ -661,6 +676,58 @@
             box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
         }
 
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background: #ccc;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-checkbox:checked + .toggle-switch {
+            background: var(--success);
+        }
+
+        .toggle-checkbox:checked + .toggle-switch::after {
+            transform: translateX(26px);
+        }
+
+        .toggle-checkbox {
+            display: none;
+        }
+
+        .pa-phone-input {
+            display: none;
+            margin-top: 1rem;
+        }
+
         .photo-upload {
             display: flex;
             align-items: center;
@@ -739,6 +806,28 @@
             background: #5a6268;
         }
 
+        /* Notification styles */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
         /* Responsive styles */
         @media (max-width: 992px) {
             .dashboard {
@@ -802,7 +891,7 @@
     <header>
         <div class="logo-container">
             <div class="logo">
-                <i class="fas fa-chalkboard-teacher logo-icon"></i>
+                <img src="https://i.ibb.co/0Q6n8Zk/gs.png" alt="Ganesh Sir Logo" class="logo-img">
                 <h1 class="logo-text">GANESH SIR TRACKING SIMULATION</h1>
             </div>
             <button class="theme-toggle" id="themeToggle">
@@ -918,6 +1007,19 @@
                 <input type="number" id="studentFee" placeholder="Enter monthly fee">
             </div>
             <div class="form-group">
+                <div class="toggle-container">
+                    <label class="toggle-label">
+                        <input type="checkbox" class="toggle-checkbox" id="paToggle">
+                        <div class="toggle-switch"></div>
+                        <span>Enable Parent Alert (PA)</span>
+                    </label>
+                </div>
+                <div class="pa-phone-input" id="paPhoneInput">
+                    <label for="parentPhone">Parent Phone Number</label>
+                    <input type="tel" id="parentPhone" placeholder="Enter parent's phone number">
+                </div>
+            </div>
+            <div class="form-group">
                 <label for="studentPhoto">Student Photo (Optional)</label>
                 <div class="photo-upload">
                     <div class="photo-preview" id="studentPhotoPreview">
@@ -932,6 +1034,12 @@
                 <button class="btn btn-primary" id="saveStudentBtn">Add Student</button>
             </div>
         </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notificationText">Message sent to parent!</span>
     </div>
 
     <script>
@@ -976,6 +1084,15 @@
         
         const themeToggle = document.getElementById('themeToggle');
         const particlesContainer = document.getElementById('particlesContainer');
+        
+        // PA Elements
+        const paToggle = document.getElementById('paToggle');
+        const paPhoneInput = document.getElementById('paPhoneInput');
+        const parentPhoneInput = document.getElementById('parentPhone');
+        
+        // Notification
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notificationText');
 
         // Close modal buttons
         const closeModalButtons = document.querySelectorAll('.close-modal');
@@ -1018,6 +1135,17 @@
                 studentNameInput.value = '';
                 studentFeeInput.value = '';
                 studentPhotoPreview.innerHTML = '<i class="fas fa-user" style="font-size: 2rem; color: #ccc;"></i>';
+                paToggle.checked = false;
+                paPhoneInput.style.display = 'none';
+                parentPhoneInput.value = '';
+            });
+
+            paToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    paPhoneInput.style.display = 'block';
+                } else {
+                    paPhoneInput.style.display = 'none';
+                }
             });
 
             studentPhotoUploadBtn.addEventListener('click', () => {
@@ -1154,6 +1282,8 @@
         function saveStudent() {
             const name = studentNameInput.value.trim();
             const fee = parseInt(studentFeeInput.value);
+            const enablePA = paToggle.checked;
+            const parentPhone = parentPhoneInput.value.trim();
             
             if (!name) {
                 alert('Please enter a student name');
@@ -1165,6 +1295,11 @@
                 return;
             }
             
+            if (enablePA && !parentPhone) {
+                alert('Please enter parent phone number for PA feature');
+                return;
+            }
+            
             const groupIndex = groups.findIndex(g => g.id === currentGroupId);
             if (groupIndex === -1) return;
             
@@ -1173,7 +1308,9 @@
                 name: name,
                 fee: fee,
                 feeStatus: 'pending', // pending, paid, denied
-                photo: studentPhotoPreview.querySelector('img') ? studentPhotoPreview.querySelector('img').src : null
+                photo: studentPhotoPreview.querySelector('img') ? studentPhotoPreview.querySelector('img').src : null,
+                paEnabled: enablePA,
+                parentPhone: enablePA ? parentPhone : null
             };
             
             groups[groupIndex].students.push(newStudent);
@@ -1209,6 +1346,7 @@
                 }
                 
                 studentCard.innerHTML = `
+                    ${student.paEnabled ? '<div class="pa-indicator" title="Parent Alert Enabled">PA</div>' : ''}
                     ${student.photo ? 
                         `<img src="${student.photo}" class="student-photo" alt="${student.name}">` : 
                         `<div class="student-photo" style="background: #4361ee; color: white; display: flex; align-items: center; justify-content: center;">
@@ -1255,10 +1393,32 @@
             const studentIndex = groups[groupIndex].students.findIndex(s => s.id === studentId);
             if (studentIndex === -1) return;
             
+            const student = groups[groupIndex].students[studentIndex];
+            
+            // If marking as paid and PA is enabled, send notification
+            if (status === 'paid' && student.paEnabled && student.parentPhone) {
+                sendPANotification(student);
+            }
+            
             groups[groupIndex].students[studentIndex].feeStatus = status;
             localStorage.setItem('teacherGroups', JSON.stringify(groups));
             
             renderStudents();
+        }
+
+        // Send PA notification
+        function sendPANotification(student) {
+            // In a real app, this would connect to an SMS API
+            // For this demo, we'll just show a notification
+            
+            notificationText.textContent = `PA message sent to ${student.parentPhone}: Fee of ₹${student.fee} paid for ${student.name}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
+            
+            console.log(`PA Notification: Fee of ₹${student.fee} paid for ${student.name}. Message sent to ${student.parentPhone}`);
         }
 
         // Search students
@@ -1295,6 +1455,7 @@
                 }
                 
                 studentCard.innerHTML = `
+                    ${student.paEnabled ? '<div class="pa-indicator" title="Parent Alert Enabled">PA</div>' : ''}
                     ${student.photo ? 
                         `<img src="${student.photo}" class="student-photo" alt="${student.name}">` : 
                         `<div class="student-photo" style="background: #4361ee; color: white; display: flex; align-items: center; justify-content: center;">
